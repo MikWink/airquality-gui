@@ -6,9 +6,7 @@
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h>
 #include <string.h>
-#include <Arduino.h>
 #include <SensirionI2CSen5x.h>
-#include <Wire.h>
 
 // The used commands use up to 48 bytes. On some Arduino's the default buffer
 // space is not large enough
@@ -91,11 +89,11 @@ uint16_t sidebarWidth = screenWidth / 5;
 uint16_t gridWidth = screenWidth - sidebarWidth;
 
 // Define the number of rows and columns in the grid
-const int rows = 2;
-const int cols = 2;
+const uint16_t rows = 2;
+const uint16_t cols = 2;
 
 // Define the number of rows in the sidebar
-const int sidebarRows = 1;
+const uint16_t sidebarRows = 1;
 
 uint16_t sidebarCell = screenHeight / sidebarRows;
 
@@ -113,7 +111,7 @@ uint8_t scaleBot = 0;
 uint8_t barSize = 0;
 
 
-uint8_t tempArr[50];
+//uint8_t tempArr[50];
 
 
 void setup(void) {
@@ -153,9 +151,9 @@ void setup(void) {
     return;
   }
 
-  Serial.print("width: ");
+  Serial.print(F("width: "));
   Serial.print(screenWidth);
-  Serial.print(", height: ");
+  Serial.print(F(", height: "));
   Serial.println(screenHeight);
 
   tft.begin(identifier);
@@ -167,20 +165,17 @@ void setup(void) {
   drawAirQualityGrid();
   drawColorBar();
   drawColorScale(scaleTop, scaleBot);
-  for(int i = 0; i < 50; i++){
-    tempArr[i] = i;
-  }
 }
 
-int count = 0;
+uint16_t count = 0;
 
 void loop() {
   // Your main code goes here
   float temp = randomFloat(18.0, 24.0);
-  int humid = random(50, 70);
-  int co2 = random(5, 18);
+  uint16_t humid = random(50, 70);
+  uint16_t co2 = random(5, 18);
   float voc = randomFloat(280.0, 330.0);
-  int aq = random(60, 90);
+  uint16_t aq = random(60, 90);
 
   /*for(int i = 0; i < 50; i++){
     Serial.print(tempArr[i]);
@@ -214,7 +209,7 @@ void loop() {
   // pressure of 0 means no pressing!
 
   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) { 
-    int y = p.y; 
+    uint16_t y = p.y; 
     // scale from 0->1023 to tft.width
     p.y = map(p.x, TS_MINY, TS_MAXY, 0, tft.height());
     p.x = map(y, TS_MAXX, TS_MINX, 0, tft.width());
@@ -235,10 +230,10 @@ void loop() {
 
   delay(0);
 }
-
+/*
 void addToFront(int value) {
   // Shift existing elements to make room for the new element
-  for (int i = 50; i > 0; --i) {
+  for (uint16_t i = 50; i > 0; --i) {
     tempArr[i] = tempArr[i - 1];
   }
 
@@ -247,6 +242,7 @@ void addToFront(int value) {
 
  
 }
+*/
 
 void drawVOCGraph(){
   tft.fillScreen(BLACK);
@@ -293,31 +289,25 @@ void drawTEMPGraph(){
 }
 
 void updateMarker(int aq){
-  int y = map(aq, 0, 100, barSize, 0) + 10;
-  int x0 = gridWidth + sidebarWidth / 2;
-  int x1 = gridWidth + sidebarWidth / 2 + 20;
+  uint16_t y = map(aq, 0, 100, barSize, 0) + 10;
+  uint16_t x0 = gridWidth + sidebarWidth / 2;
+  uint16_t x1 = gridWidth + sidebarWidth / 2 + 20;
 
   tft.drawLine(x0, y, x1, y, WHITE);
 
 }
 
 void drawColorScale(int top, int bot){
-  int x0 = gridWidth + sidebarWidth / 2 - 3;
-  int x1 = gridWidth + sidebarWidth / 2 - 8;
-  int y = bot;
-  int loopEnd = bot - top;
-  int loopEndRounded = loopEnd / 10;
-  int label = 0;
-  int count = 0;
-  Serial.print("bot: ");
-  Serial.print(bot);
-  Serial.print(", top: ");
-  Serial.print(top);
-  Serial.print(", barsize: ");
-  Serial.println(loopEnd);
+  uint16_t x0 = gridWidth + sidebarWidth / 2 - 3;
+  uint16_t x1 = gridWidth + sidebarWidth / 2 - 8;
+  uint16_t y = bot;
+  uint16_t loopEnd = bot - top;
+  uint16_t loopEndRounded = loopEnd / 10;
+  uint16_t label = 0;
+  uint16_t count = 0;
   barSize = loopEnd;
 
-  for(int i = 0; i < loopEnd + 1; i++){
+  for(uint16_t i = 0; i < loopEnd + 1; i++){
     
     if(i % loopEndRounded == 0){
       if((float(loopEnd) / 10.0) * float(count) >= float(loopEnd / 10) * float(count) + 0.5){
@@ -336,14 +326,14 @@ void drawColorScale(int top, int bot){
 }
 
 void drawColorBar() {
-  int r = 255;
-  int g = 0;
-  int x0 = gridWidth + sidebarWidth / 2;
-  int x1 = gridWidth + sidebarWidth / 2 + 20;
-  int y0 = screenHeight - 10;
+  uint16_t r = 255;
+  uint16_t g = 0;
+  uint16_t x0 = gridWidth + sidebarWidth / 2;
+  uint16_t x1 = gridWidth + sidebarWidth / 2 + 20;
+  uint16_t y0 = screenHeight - 10;
 
   // Draw the color scale from bottom to top
-  for (int i = 0; i < screenHeight - 19; i++) {
+  for (uint16_t i = 0; i < screenHeight - 19; i++) {
     uint16_t currentColor = tft.color565(
       r,
       g,
@@ -369,8 +359,8 @@ void writeGridCell(String value, int row, int col, int xOffset, int yOffset, int
   int16_t x1, y1;
   uint16_t textWidth, textHeight;
   
-  int xPos = (cellWidth * col) + cellWidth / 2 + xOffset;
-  int yPos = (cellHeight * row) + cellHeight / 2 + yOffset;
+  int16_t xPos = (cellWidth * col) + cellWidth / 2 + xOffset;
+  int16_t yPos = (cellHeight * row) + cellHeight / 2 + yOffset;
   tft.setTextSize(size);
   tft.getTextBounds(value, xPos, yPos, &x1, &y1, &textWidth, &textHeight);
 
@@ -379,18 +369,18 @@ void writeGridCell(String value, int row, int col, int xOffset, int yOffset, int
 }
 
 void ereaseCell(int row, int col){
-  int xPos = cellWidth * col;
-  int yPos = cellHeight * row;
+  uint16_t xPos = cellWidth * col;
+  uint16_t yPos = cellHeight * row;
   // Erase old data
   tft.fillRect(xPos + 5, yPos + 20, cellWidth - 10, cellHeight - 40, BLACK);
 }
 
-void updateValues(float temp, int humid, int co2, float voc){
+void updateValues(float temp, uint16_t humid, uint16_t co2, float voc){
 
   String airQualityValues[][2] = {{String(temp), String(humid) + "%"}, {String(co2) + "%", String(voc)}};
-  int cellCount = 0;
-  for (int row = 0; row < rows; row++) {
-    for (int col = 0; col < cols; col++) {
+  uint16_t cellCount = 0;
+  for (uint16_t row = 0; row < rows; row++) {
+    for (uint16_t col = 0; col < cols; col++) {
       ereaseCell(row, col);
       writeGridCell(airQualityValues[row][col], row, col, 0, 0, 3);
       cellCount++;
@@ -402,9 +392,9 @@ void updateValues(float temp, int humid, int co2, float voc){
 void drawAirQualityGrid() {
 
   String airQualityValues[][2] = {{"Temperature", "Humidity"}, {"CO2", "VOC"}};
-  int cellCount = 0;
-  for (int row = 0; row < rows; row++) {
-    for (int col = 0; col < cols; col++) {
+  uint8_t cellCount = 0;
+  for (uint8_t row = 0; row < rows; row++) {
+    for (uint8_t col = 0; col < cols; col++) {
       // Calculate the position of the current grid cell
       uint16_t xPos = col * cellWidth;
       uint16_t yPos = row * cellHeight;
